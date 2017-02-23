@@ -2,6 +2,7 @@ $ ->
   sock = new WebSocket "wss#{location.href.substring 5, location.href.lastIndexOf '/'}"
   sock.onopen = ->
     sock.send "\"#{sessid}\""
+    $(".contentlink[href='#{location.hash}']").click()
     sock.onclose = ->
       unless window.preventSocketAlert
         alert 'the websocket has been disconnected, reloading the page'
@@ -33,6 +34,7 @@ $ ->
       else if msg.type is 'logout'
         $("#userlist li:contains('#{msg.data}')").remove()
         $('#usercount').text $('#userlist').children('li').length
+        $(".active-user[data-name='#{msg.name}']").remove
       else if msg.type is 'fileupload' or msg.type is 'filedeletion'
         if "#{msg.data}files" is window.currentPage
           current = window.currentPage
@@ -44,6 +46,14 @@ $ ->
         else
           subject.children('i').removeClass('icon-folder-open').addClass('icon-folder-close')
         subject.nextAll('sup').text msg.filecount
+      else if msg.type is 'setactive'
+        $(".active-user[data-name='#{msg.name}']").remove()
+        if msg.challenge isnt undefined
+          $("#activeUsers#{msg.challenge}").append($('<span />')
+            .addClass('active-user')
+            .attr('data-name', msg.name)
+            .text(msg.name))
+
       else
         alert event.data
       #TODO handle events
@@ -132,9 +142,10 @@ $ ->
         $('#content').pad {'padId':page}
       $(".highlighted").removeClass("highlighted")
       $(this).parents(".highlightable").addClass("highlighted")
+      chalid = $(this).parents(".highlightable").attr("data-challengeid")
+      if chalid isnt undefined
+        sock.send JSON.stringify {type: 'setactive', subject: parseInt chalid}
       window.currentPage = page
-
-  $(".contentlink[href='#{location.hash}']").click()
 
   $("input[type='checkbox']").change ->
     $(this).parent().next().css 'text-decoration',if this.checked then 'line-through' else 'none'

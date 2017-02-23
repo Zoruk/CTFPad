@@ -11,7 +11,7 @@
     "mustache": "*",
     "mv": "^2.0.3",
     "sqlite3": "*",
-    "ws": "1.1.*",
+    "ws": "~1.1",
     "coffee-script": "1.x"
   },
   "main": "main.js",

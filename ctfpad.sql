@@ -19,7 +19,8 @@ CREATE TABLE user (
 	"pwhash" TEXT NOT NULL,
 	"sessid" TEXT,
 	"scope" INTEGER NOT NULL DEFAULT (0),
-	"apikey" TEXT
+	"apikey" TEXT,
+	"challenge" INTEGER
 );
 CREATE TABLE file (
 	"id" TEXT PRIMARY KEY NOT NULL,

@@ -64,27 +64,37 @@ app.get '/', (req, res) ->
             user.ctfs.push(i)
           n++
         if user.current
-          done = -> #have it prepared
+          ctfFilesReady = false
+
+          db.getCTFFiles user.current.id, (files) ->
+            user.current.filecount = files.length
+            ctfFilesReady = true
+
           db.getChallenges user.current.id, (challenges) ->
             buf = {}
             for challenge in challenges
+              done = ->
+                doneCount++
+                if doneCount is challenges.length * 2 and ctfFilesReady # +1 for ctf filecount
+                  res.render 'index.html', user
+
               do (challenge) ->
                 db.getChallengeFiles challenge.id, (files) ->
                   challenge.filecount = files.length
                   done()
+                db.getActiveUserByChal challenge.id, (users) ->
+                  challenge.activeUsers = users
+                  done()
+
               if buf[challenge.category] is undefined then buf[challenge.category] = []
               buf[challenge.category].push challenge
+
             user.categories = []
+
             for k,v of buf
               user.categories.push {name:k, challenges:v}
+
             doneCount = 0
-            done = ->
-              doneCount++
-              if doneCount is challenges.length+1 # +1 for ctf filecount
-                res.render 'index.html', user
-          db.getCTFFiles user.current.id, (files) ->
-            user.current.filecount = files.length
-            done()
         else res.render 'index.html', user
 
 app.post '/login', (req, res) ->
@@ -268,6 +278,7 @@ wss.on 'connection', (sock) ->
   sock.on 'close', ->
     if sock.authenticated
       wss.broadcast JSON.stringify {type: 'logout', data: sock.authenticated.name}
+      db.setActiveChallenge sock.authenticated.name, null
   sock.on 'message', (message) ->
     msg = null
     try msg = JSON.parse(message) catch e then return
@@ -307,6 +318,10 @@ wss.on 'connection', (sock) ->
         for s in wss.clients
           if s.authenticated and s.authenticated.scope is msg.data.ctf
             s.send JSON.stringify {type: 'ctfmodification'}
+      else if msg.type and msg.type is 'setactive'
+        if msg.subject
+          db.setActiveChallenge sock.authenticated.name, msg.subject
+          wss.broadcast JSON.stringify {type: 'setactive', challenge: msg.subject, name: sock.authenticated.name}
       else console.log msg
 
 server.listen config.port

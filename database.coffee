@@ -34,6 +34,8 @@ sql = new sqlite3.Database 'ctfpad.sqlite', ->
   stmts.fileMimetype = sql.prepare 'SELECT mimetype FROM file WHERE id = ?'
   stmts.deleteFile = sql.prepare 'DELETE FROM file WHERE id = ?'
   stmts.getLatestCtfId = sql.prepare 'SELECT id FROM ctf ORDER BY id DESC LIMIT 1'
+  stmts.setActiveChallenge = sql.prepare 'UPDATE user SET challenge = ? WHERE name = ?'
+  stmts.getActiveUserByChal = sql.prepare 'SELECT name FROM user WHERE challenge = ?'
 
 #
 # EXPORTS
@@ -165,6 +167,13 @@ exports.getLatestCtfId = (cb = ->) ->
   stmts.getLatestCtfId.get H (row) ->
     stmts.getLatestCtfId.reset ->
       cb(if row isnt undefined then row.id else -1)
+
+exports.setActiveChallenge = (user, challenge, cb = ->) ->
+  stmts.setActiveChallenge.run [challenge, user], cb
+
+
+exports.getActiveUserByChal = (challenge, cb = ->) ->
+  stmts.getActiveUserByChal.get [challenge], H cb
 
 #
 # UTIL

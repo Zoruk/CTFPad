@@ -37,6 +37,9 @@
       #content:empty {
         display: none;
       }
+      .active-user {
+        margin-right: 0.3em;
+      }
     </style>
     <script type="text/javascript">
       window.etherpad_port = "{{etherpad_port}}"
@@ -150,10 +153,15 @@
                     <td colspan="5"><strong>{{name}} [<span class="done-count">0</span>/{{challenges.length}}]</strong></td>
                   </tr>
                   {{#challenges}}
-                  <tr class="{{#points}}challenge{{/points}} {{#done}}done{{/done}} highlightable" data-chalpoints="{{points}}" data-category="{{name}}">
+                  <tr class="{{#points}}challenge{{/points}} {{#done}}done{{/done}} highlightable" data-chalpoints="{{points}}" data-category="{{name}}" data-challengeid="{{id}}">
                       <td class="padded"><input type="checkbox" data-chalid="{{id}}"{{#done}} checked{{/done}} autocomplete="off"></td>
                       <td class="padded" width="100%"{{#done}} style="text-decoration:line-through"{{/done}}>
                         <a href="#challenge{{id}}" class="contentlink">[{{points}}] {{title}}</a>
+                        <div id="activeUsers{{id}}">
+                          {{#activeUsers}}
+                            <span class="active-user" data-name="{{name}}">{{name}}</span>
+                          {{/activeUsers}}
+                        </div>
                       </td>
                       <td class="padded"><a href="#challenge{{id}}" class="contentlink"><i class="icon-edit"></i></a></td>
                       <td class="padded" nowrap>
