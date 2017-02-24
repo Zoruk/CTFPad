@@ -12,7 +12,7 @@ $(function() {
       }
     };
     return sock.onmessage = function(event) {
-      var current, msg, self, subject;
+      var current, i, len, msg, msgData, ref, self, subject, user;
       msg = JSON.parse(event.data);
       console.log(msg);
       if (msg.type === 'done') {
@@ -59,6 +59,19 @@ $(function() {
         $(".active-user[data-name='" + msg.name + "']").remove();
         if (msg.challenge !== void 0) {
           return $("#activeUsers" + msg.challenge).append($('<span />').addClass('active-user').attr('data-name', msg.name).text(msg.name));
+        }
+      } else if (msg.type === 'chat') {
+        self = $('#chats');
+        ref = msg.data;
+        for (i = 0, len = ref.length; i < len; i++) {
+          msgData = ref[i];
+          user = msgData.name ? msgData.name : msgData.user;
+          self.append($("<tr />").css("width", "100%").append($("<td />").css("width", "100%").append($("<span />").addClass("label label-default").css("background-color", msgData.color).text(user)).append($("<p />").css("display", "inline").text(" " + msgData.message))).append($("<td />").attr("valign", "top").css("padding-right", "1px").append($("<i />").text(msgData.time.substring(11, 19)))));
+        }
+        if ($("#chat-scroll").prop('checked')) {
+          return $(".chat-body").animate({
+            scrollTop: $(".chat-body").prop("scrollHeight")
+          });
         }
       } else {
         return alert(event.data);
@@ -236,6 +249,27 @@ $(function() {
     $('#deletefilebtnyes').show();
     $('#deletefilemodal').data('fileid', fileid).modal('show');
     return false;
+  });
+  $('body').delegate('.btn-chat', 'click', function() {
+    var mymessage;
+    mymessage = $('.form-chat-send').val();
+    $('.form-chat-send').val("");
+    return sock.send(JSON.stringify({
+      type: 'chat',
+      message: mymessage
+    }));
+  });
+  $('body').delegate('.form-chat-send', 'keypress', function(event) {
+    var keycode, mymessage;
+    keycode = event.keyCode ? event.keyCode : event.which;
+    if (keycode === '13') {
+      mymessage = $('.form-chat-send').val();
+      $('.form-chat-send').val("");
+      return sock.send(JSON.stringify({
+        type: 'chat',
+        message: mymessage
+      }));
+    }
   });
   $('#hidefinished').click(function() {
     if (!$(this).hasClass('active')) {

@@ -3,12 +3,33 @@ bcrypt = require 'bcrypt-nodejs'
 sqlite3 = require 'sqlite3'
 fs = require 'fs'
 
+#Hack for having color. Pasted from etherpad source code.
+colorPalette = ["#ffc7c7", "#fff1c7", "#e3ffc7", "#c7ffd5",
+                "#c7ffff", "#c7d5ff", "#e3c7ff", "#ffc7f1",
+                "#ff8f8f", "#ffe38f", "#c7ff8f", "#8fffab",
+                "#8fffff", "#8fabff", "#c78fff", "#ff8fe3",
+                "#d97979", "#d9c179", "#a9d979", "#79d991",
+                "#79d9d9", "#7991d9", "#a979d9", "#d979c1",
+                "#d9a9a9", "#d9cda9", "#c1d9a9", "#a9d9b5",
+                "#a9d9d9", "#a9b5d9", "#c1a9d9", "#d9a9cd",
+                "#4c9c82", "#12d1ad", "#2d8e80", "#7485c3",
+                "#a091c7", "#3185ab", "#6818b4", "#e6e76d",
+                "#a42c64", "#f386e5", "#4ecc0c", "#c0c236",
+                "#693224", "#b5de6a", "#9b88fd", "#358f9b",
+                "#496d2f", "#e267fe", "#d23056", "#1a1a64",
+                "#5aa335", "#d722bb", "#86dc6c", "#b5a714",
+                "#955b6a", "#9f2985", "#4b81c8", "#3d6a5b",
+                "#434e16", "#d16084", "#af6a0e", "#8c8bd8"];
+
+
 # SQLITE DB
 stmts = {}
 sql = new sqlite3.Database 'ctfpad.sqlite', ->
-  stmts.getUser = sql.prepare 'SELECT name,scope,apikey FROM user WHERE sessid = ?'
+  #stmts.getUser = sql.prepare 'SELECT name,scope,apikey FROM user WHERE sessid = ?'
+  stmts.getUser = sql.prepare 'SELECT name,color,scope,apikey FROM user WHERE sessid = ?'
   stmts.getUserByApiKey = sql.prepare 'SELECT name,scope FROM user WHERE apikey = ? AND apikey NOT NULL'
-  stmts.addUser = sql.prepare 'INSERT INTO user (name,pwhash) VALUES (?,?)'
+  #stmts.addUser = sql.prepare 'INSERT INTO user (name,pwhash) VALUES (?,?)'
+  stmts.addUser = sql.prepare 'INSERT INTO user (name,pwhash, color) VALUES (?,?,?)'
   stmts.getUserPW = sql.prepare 'SELECT pwhash FROM user WHERE name = ?'
   stmts.insertSession = sql.prepare 'UPDATE user SET sessid = ? WHERE name = ?'
   stmts.voidSession = sql.prepare 'UPDATE user SET sessid = NULL WHERE sessid = ?'
@@ -34,8 +55,14 @@ sql = new sqlite3.Database 'ctfpad.sqlite', ->
   stmts.fileMimetype = sql.prepare 'SELECT mimetype FROM file WHERE id = ?'
   stmts.deleteFile = sql.prepare 'DELETE FROM file WHERE id = ?'
   stmts.getLatestCtfId = sql.prepare 'SELECT id FROM ctf ORDER BY id DESC LIMIT 1'
+
+  # Zoruk
+  # Active challenges
   stmts.setActiveChallenge = sql.prepare 'UPDATE user SET challenge = ? WHERE name = ?'
   stmts.getActiveUserByChal = sql.prepare 'SELECT name FROM user WHERE challenge = ?'
+  # Chat
+  stmts.getChatMessages = sql.prepare 'SELECT chat.user,chat.message,user.color,chat.time FROM chat JOIN user ON chat.user=user.name WHERE chat.ctf = ?'
+  stmts.addChatMessage = sql.prepare 'INSERT INTO chat (user, message, time, ctf) VALUES (?,?,?,?)'
 
 #
 # EXPORTS
@@ -131,7 +158,8 @@ exports.addUser = (name, pw, cb = ->) ->
   bcrypt.hash pw, bcrypt.genSaltSync(), null, (err, hash) ->
     if err then cb err
     else
-      stmts.addUser.run [name, hash], (err, ans) ->
+      color = colorPalette[Math.floor Math.random() * colorPalette.length]
+      stmts.addUser.run [name, hash, color], (err, ans) ->
         if err
           cb err
         else
@@ -168,12 +196,21 @@ exports.getLatestCtfId = (cb = ->) ->
     stmts.getLatestCtfId.reset ->
       cb(if row isnt undefined then row.id else -1)
 
+# Active challenge
 exports.setActiveChallenge = (user, challenge, cb = ->) ->
   stmts.setActiveChallenge.run [challenge, user], cb
 
-
 exports.getActiveUserByChal = (challenge, cb = ->) ->
   stmts.getActiveUserByChal.get [challenge], H cb
+
+
+# Chat
+exports.getChatMessages = (ctfid, cb = ->) ->
+  stmts.getChatMessages.all [ctfid], H cb
+
+exports.addChatMessage = (user, message, time, ctf, cb = ->) ->
+  stmts.addChatMessage.run [user, message, time, ctf], (err) ->
+    cb(this.lastID)
 
 #
 # UTIL

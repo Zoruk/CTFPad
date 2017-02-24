@@ -20,6 +20,7 @@ CREATE TABLE user (
 	"sessid" TEXT,
 	"scope" INTEGER NOT NULL DEFAULT (0),
 	"apikey" TEXT,
+	"color" TEXT NOT NULL,
 	"challenge" INTEGER
 );
 CREATE TABLE file (
@@ -30,4 +31,11 @@ CREATE TABLE file (
 	"challenge" INTEGER,
 	"uploaded" INTEGER NOT NULL DEFAULT (0),
 	"mimetype" TEXT DEFAULT ('application/octet-stream; charset=binary')
+);
+CREATE TABLE chat (
+	"id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	"user" TEXT NOT NULL,
+	"message" TEXT NOT NULL,
+	"time" TEXT NOT NULL,
+	"ctf" INTEGER NOT NULL   
 );

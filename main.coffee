@@ -118,6 +118,8 @@ app.post '/register', (req, res) ->
 
 app.get '/logout', (req, res) ->
   res.clearCookie 'ctfpad'
+  # Clear etherpad token to avoid color problem
+  res.clearCookie 'token'
   res.redirect 303, '/'
 
 app.post '/changepassword', (req, res) ->
@@ -288,9 +290,18 @@ wss.on 'connection', (sock) ->
           if ans
             sock.authenticated = ans
             # send assignments on auth
-            if ans.scope then db.listAssignments ans.scope, (list) ->
-              for i in list
-                sock.send JSON.stringify {type: 'assign', subject: i.challenge, data: [{name: i.user}, true]}
+            if ans.scope
+              db.listAssignments ans.scope, (list) ->
+                for i in list
+                  sock.send JSON.stringify {type: 'assign', subject: i.challenge, data: [{name: i.user}, true]}
+
+              # Chat
+              db.getChatMessages ans.scope, (msgs) ->
+                sock.send JSON.stringify {type: 'chat', data: msgs}
+                #chatMessages = []
+                #for msg in msgs
+                #  chatMessages.push {name: msg.user, message: msg.message, color: msg.color}
+
             # notify all users about new authentication and notify new socket about other users
             wss.broadcast JSON.stringify {type: 'login', data: ans.name}
             for s in wss.getClients()
@@ -322,6 +333,22 @@ wss.on 'connection', (sock) ->
         if msg.subject
           db.setActiveChallenge sock.authenticated.name, msg.subject
           wss.broadcast JSON.stringify {type: 'setactive', challenge: msg.subject, name: sock.authenticated.name}
+      else if msg.type and msg.type is 'chat'
+        if msg.message and typeof msg.message is 'string'
+          time = new Date().toISOString();
+
+          wss.broadcast JSON.stringify {type: 'chat', data: [{
+            name: sock.authenticated.name,
+            message: msg.message,
+            color: sock.authenticated.color,
+            time: time
+          }]}
+
+          db.addChatMessage sock.authenticated.name,
+            msg.message, 
+            time,
+            sock.authenticated.scope
+
       else console.log msg
 
 server.listen config.port

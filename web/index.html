@@ -182,6 +182,32 @@
                 {{/categories}}
               </table>
             </div>
+
+
+
+            <div id="box-ctf-chat" class="panel panel-default">
+              <div class="panel-heading">
+              <h3 style="display:inline;">Chat</h3>
+              <div class="pull-right clearfix">
+              <label class="checkbox-inline">
+                <input id="chat-scroll" type="checkbox" checked> auto-scroll
+              </label>
+              </div>
+              </div>
+              <div class="panel-body chat-body" style="height:260px;max-height:260px;overflow-y:scroll;">
+                <table style="width:100%;"><tbody id="chats"></tbody></table>
+              </div>
+              <div class="panel-footer">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control form-chat-send" placeholder="Your message...">
+                    <span class="input-group-btn">
+                      <button type="button" class="btn btn-default btn-chat" data-chalid="{{id}}">Send</button>
+                    </span>
+                </div>
+              </div>
+            </div>
+
+
           </div>
           <div class="span9 well" id="content"></div>
         {{/current}}

@@ -53,7 +53,19 @@ $ ->
             .addClass('active-user')
             .attr('data-name', msg.name)
             .text(msg.name))
-
+      else if msg.type is 'chat'
+        self = $('#chats')
+        for msgData in msg.data
+          user = if msgData.name then msgData.name else msgData.user
+          self.append(
+              $("<tr />").css("width", "100%").append(
+                $("<td />").css("width", "100%").append(
+                  $("<span />").addClass("label label-default").css("background-color", msgData.color).text(user)).append(
+                  $("<p />").css("display", "inline").text(" " + msgData.message))).append(
+                $("<td />").attr("valign", "top").css("padding-right", "1px").append(
+                  $("<i />").text(msgData.time.substring(11,19)))));
+        if $("#chat-scroll").prop 'checked'
+            $(".chat-body").animate { scrollTop: $(".chat-body").prop "scrollHeight" }
       else
         alert event.data
       #TODO handle events
@@ -189,6 +201,25 @@ $ ->
     $('#deletefilebtnyes').show()
     $('#deletefilemodal').data('fileid', fileid).modal 'show'
     return false
+
+
+  $('body').delegate '.btn-chat', 'click', -> 
+    mymessage = $('.form-chat-send').val()
+    $('.form-chat-send').val ""
+    sock.send JSON.stringify {
+      type: 'chat',
+      message: mymessage
+    }
+  
+  $('body').delegate '.form-chat-send', 'keypress', (event) -> 
+    keycode = if event.keyCode then event.keyCode else event.which
+    if keycode is '13'
+      mymessage = $('.form-chat-send').val()
+      $('.form-chat-send').val ""
+      sock.send JSON.stringify {
+        type: 'chat',
+        message: mymessage
+      }
 
   $('#hidefinished').click ->
     unless $(this).hasClass 'active'
