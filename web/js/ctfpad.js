@@ -14,7 +14,6 @@ $(function() {
     return sock.onmessage = function(event) {
       var current, i, len, msg, msgData, ref, self, subject, user;
       msg = JSON.parse(event.data);
-      console.log(msg);
       if (msg.type === 'done') {
         self = $("input[data-chalid='" + msg.subject + "']");
         self.prop('checked', msg.data);
@@ -173,7 +172,8 @@ $(function() {
         });
       } else {
         $('#content').pad({
-          'padId': page
+          'padId': page,
+          color: window.user.color
         });
       }
       $(".highlighted").removeClass("highlighted");

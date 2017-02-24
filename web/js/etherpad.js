@@ -39,6 +39,9 @@
           iFrameLink = iFrameLink + '&showLineNumbers='+settings.showLineNumbers;
           iFrameLink = iFrameLink + '&useMonospaceFont='+settings.useMonospaceFont;
           iFrameLink = iFrameLink + '&userName=' + window.user.name;
+          if (settings.color) {
+              iFrameLink = iFrameLink + '&userColor=' + settings.color
+          }
           iFrameLink = iFrameLink + '&noColors=' + settings.noColors;
           iFrameLink = iFrameLink + '&hideQRCode=' + settings.hideQRCode;
           iFrameLink = iFrameLink + '&alwaysShowChat=' + settings.alwaysShowChat;

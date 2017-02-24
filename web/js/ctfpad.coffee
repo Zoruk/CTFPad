@@ -9,7 +9,7 @@ $ ->
         document.location.reload()
     sock.onmessage = (event) ->
       msg = JSON.parse event.data
-      console.log msg
+
       if msg.type is 'done'
         self = $("input[data-chalid='#{msg.subject}']")
         self.prop 'checked', msg.data
@@ -19,6 +19,7 @@ $ ->
         else
           self.parent().parent().removeClass 'done'
         updateProgress()
+
       else if msg.type is 'assign'
         self = $(".labels[data-chalid='#{msg.subject}']")
         if msg.data[1]
@@ -26,15 +27,19 @@ $ ->
         else
           self.find(".label[data-name='#{msg.data[0].name}']").parent().remove()
         $(".assignment-count[data-chalid='#{msg.subject}']").text self.first().find('.label').length
+
       else if msg.type is 'ctfmodification'
         $('#ctfmodification').fadeIn 500
+
       else if msg.type is 'login'
         $('#userlist').append $("<li />").text(msg.data)
         $('#usercount').text $('#userlist').children('li').length
+
       else if msg.type is 'logout'
         $("#userlist li:contains('#{msg.data}')").remove()
         $('#usercount').text $('#userlist').children('li').length
         $(".active-user[data-name='#{msg.name}']").remove
+
       else if msg.type is 'fileupload' or msg.type is 'filedeletion'
         if "#{msg.data}files" is window.currentPage
           current = window.currentPage
@@ -46,6 +51,7 @@ $ ->
         else
           subject.children('i').removeClass('icon-folder-open').addClass('icon-folder-close')
         subject.nextAll('sup').text msg.filecount
+
       else if msg.type is 'setactive'
         $(".active-user[data-name='#{msg.name}']").remove()
         if msg.challenge isnt undefined
@@ -53,6 +59,7 @@ $ ->
             .addClass('active-user')
             .attr('data-name', msg.name)
             .text(msg.name))
+
       else if msg.type is 'chat'
         self = $('#chats')
         for msgData in msg.data
@@ -66,6 +73,7 @@ $ ->
                   $("<i />").text(msgData.time.substring(11,19)))));
         if $("#chat-scroll").prop 'checked'
             $(".chat-body").animate { scrollTop: $(".chat-body").prop "scrollHeight" }
+
       else
         alert event.data
       #TODO handle events
@@ -151,7 +159,7 @@ $ ->
             progress: window.upload_handler_progress
           }).prop('disabled', !$.support.fileInput).parent().addClass $.support.fileInput ? undefined : 'disabled'
       else
-        $('#content').pad {'padId':page}
+        $('#content').pad {'padId':page, color: window.user.color}
       $(".highlighted").removeClass("highlighted")
       $(this).parents(".highlightable").addClass("highlighted")
       chalid = $(this).parents(".highlightable").attr("data-challengeid")
