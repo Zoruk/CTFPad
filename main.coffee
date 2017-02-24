@@ -72,12 +72,11 @@ app.get '/', (req, res) ->
 
           db.getChallenges user.current.id, (challenges) ->
             buf = {}
+            done = ->
+              doneCount++
+              if doneCount is challenges.length * 2 and ctfFilesReady # +1 for ctf filecount
+                res.render 'index.html', user
             for challenge in challenges
-              done = ->
-                doneCount++
-                if doneCount is challenges.length * 2 and ctfFilesReady # +1 for ctf filecount
-                  res.render 'index.html', user
-
               do (challenge) ->
                 db.getChallengeFiles challenge.id, (files) ->
                   challenge.filecount = files.length
@@ -332,7 +331,12 @@ wss.on 'connection', (sock) ->
       else if msg.type and msg.type is 'setactive'
         if msg.subject
           db.setActiveChallenge sock.authenticated.name, msg.subject
-          wss.broadcast JSON.stringify {type: 'setactive', challenge: msg.subject, name: sock.authenticated.name}
+          wss.broadcast JSON.stringify {
+            type: 'setactive',
+            challenge: msg.subject,
+            name: sock.authenticated.name,
+            color: sock.authenticated.color
+          }
       else if msg.type and msg.type is 'chat'
         if msg.message and typeof msg.message is 'string'
           time = new Date().toISOString();

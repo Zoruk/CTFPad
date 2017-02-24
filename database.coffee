@@ -59,7 +59,7 @@ sql = new sqlite3.Database 'ctfpad.sqlite', ->
   # Zoruk
   # Active challenges
   stmts.setActiveChallenge = sql.prepare 'UPDATE user SET challenge = ? WHERE name = ?'
-  stmts.getActiveUserByChal = sql.prepare 'SELECT name FROM user WHERE challenge = ?'
+  stmts.getActiveUserByChal = sql.prepare 'SELECT name, color FROM user WHERE challenge = ?'
   # Chat
   stmts.getChatMessages = sql.prepare 'SELECT chat.user,chat.message,user.color,chat.time FROM chat JOIN user ON chat.user=user.name WHERE chat.ctf = ?'
   stmts.addChatMessage = sql.prepare 'INSERT INTO chat (user, message, time, ctf) VALUES (?,?,?,?)'
@@ -201,7 +201,7 @@ exports.setActiveChallenge = (user, challenge, cb = ->) ->
   stmts.setActiveChallenge.run [challenge, user], cb
 
 exports.getActiveUserByChal = (challenge, cb = ->) ->
-  stmts.getActiveUserByChal.get [challenge], H cb
+  stmts.getActiveUserByChal.all [challenge], H cb
 
 
 # Chat

@@ -38,7 +38,11 @@
         display: none;
       }
       .active-user {
-        margin-right: 0.3em;
+        padding: 2px;
+        margin-right: 1px;
+        margin-bottom: 2px;
+        border-radius: 2px;
+        font-size: 0.7em;
       }
     </style>
     <script type="text/javascript">
@@ -159,7 +163,7 @@
                         <a href="#challenge{{id}}" class="contentlink">[{{points}}] {{title}}</a>
                         <div id="activeUsers{{id}}">
                           {{#activeUsers}}
-                            <span class="active-user" data-name="{{name}}">{{name}}</span>
+                            <span class="active-user" style="background-color: {{color}}" data-name="{{name}}">{{name}}</span>
                           {{/activeUsers}}
                         </div>
                       </td>

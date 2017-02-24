@@ -57,7 +57,7 @@ $(function() {
       } else if (msg.type === 'setactive') {
         $(".active-user[data-name='" + msg.name + "']").remove();
         if (msg.challenge !== void 0) {
-          return $("#activeUsers" + msg.challenge).append($('<span />').addClass('active-user').attr('data-name', msg.name).text(msg.name));
+          return $("#activeUsers" + msg.challenge).append($('<span />').addClass('active-user').css('background-color', msg.color).attr('data-name', msg.name).text(msg.name));
         }
       } else if (msg.type === 'chat') {
         self = $('#chats');
@@ -262,7 +262,7 @@ $(function() {
   $('body').delegate('.form-chat-send', 'keypress', function(event) {
     var keycode, mymessage;
     keycode = event.keyCode ? event.keyCode : event.which;
-    if (keycode === '13') {
+    if (keycode === 13 || keycode === '13') {
       mymessage = $('.form-chat-send').val();
       $('.form-chat-send').val("");
       return sock.send(JSON.stringify({

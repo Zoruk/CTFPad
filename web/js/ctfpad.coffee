@@ -57,6 +57,7 @@ $ ->
         if msg.challenge isnt undefined
           $("#activeUsers#{msg.challenge}").append($('<span />')
             .addClass('active-user')
+            .css('background-color', msg.color)
             .attr('data-name', msg.name)
             .text(msg.name))
 
@@ -221,7 +222,7 @@ $ ->
   
   $('body').delegate '.form-chat-send', 'keypress', (event) -> 
     keycode = if event.keyCode then event.keyCode else event.which
-    if keycode is '13'
+    if keycode is 13 or keycode is '13'
       mymessage = $('.form-chat-send').val()
       $('.form-chat-send').val ""
       sock.send JSON.stringify {
