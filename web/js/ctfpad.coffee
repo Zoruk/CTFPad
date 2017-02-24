@@ -177,8 +177,32 @@ $ ->
       a.removeClass('dummy')
       $(this).parent().remove()
 
+  $('body').delegate '.add-category', 'click', ->
+    a = $(this).parent().clone()
+    a.find('input').val('')
+    $(this).parent().after a
+
+    $('.challenge-formgroup > [name="category"]').append($("<option />"))
+
+
   $('body').delegate '.remove-challenge', 'click', ->
-    if $('.category-formgroup').length > 1 then $(this).parent().remove()
+    if $('.challenge-formgroup').length > 1 then $(this).parent().remove()
+
+  $('body').delegate '.remove-category', 'click', ->
+    if $('.category-formgroup').length > 1
+      index = $(this).parent().index()
+
+      $('.challenge-formgroup > [name="category"]').each ->
+        $(this).children().eq(index).remove()
+
+      $(this).parent().remove()
+
+  $('body').delegate '.category-formgroup > [name=category]', 'input', ->
+    index = $(this).parent().index()
+    val = $(this).val()
+    $('.challenge-formgroup > [name="category"]').each ->
+      $(this).children().eq(index).text(val)
+
 
   $('body').delegate '.deletefile', 'click', ->
     fileid = $(this).attr('data-id')
@@ -202,6 +226,12 @@ $ ->
   window.newctf = ->
     l = $('#ctfform').serializeArray()
     newctf = {title: l.shift().value, challenges:[]}
+    nbCat = $('.category-formgroup').parent().children().length
+    until nbCat is 0
+      l.shift().value
+      l.shift().value
+      nbCat--
+    
     until l.length is 0
       newctf.challenges.push {'title':l.shift().value, 'category':l.shift().value, 'points':parseInt(l.shift().value)}
     sock.send JSON.stringify {type:'newctf', data: newctf}

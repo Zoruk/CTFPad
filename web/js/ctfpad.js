@@ -221,10 +221,35 @@ $(function() {
       return $(this).parent().remove();
     }
   });
+  $('body').delegate('.add-category', 'click', function() {
+    var a;
+    a = $(this).parent().clone();
+    a.find('input').val('');
+    $(this).parent().after(a);
+    return $('.challenge-formgroup > [name="category"]').append($("<option />"));
+  });
   $('body').delegate('.remove-challenge', 'click', function() {
-    if ($('.category-formgroup').length > 1) {
+    if ($('.challenge-formgroup').length > 1) {
       return $(this).parent().remove();
     }
+  });
+  $('body').delegate('.remove-category', 'click', function() {
+    var index;
+    if ($('.category-formgroup').length > 1) {
+      index = $(this).parent().index();
+      $('.challenge-formgroup > [name="category"]').each(function() {
+        return $(this).children().eq(index).remove();
+      });
+      return $(this).parent().remove();
+    }
+  });
+  $('body').delegate('.category-formgroup > [name=category]', 'input', function() {
+    var index, val;
+    index = $(this).parent().index();
+    val = $(this).val();
+    return $('.challenge-formgroup > [name="category"]').each(function() {
+      return $(this).children().eq(index).text(val);
+    });
   });
   $('body').delegate('.deletefile', 'click', function() {
     var fileid, filename;
@@ -250,12 +275,18 @@ $(function() {
     $('#hidefinished').click();
   }
   window.newctf = function() {
-    var l, newctf;
+    var l, nbCat, newctf;
     l = $('#ctfform').serializeArray();
     newctf = {
       title: l.shift().value,
       challenges: []
     };
+    nbCat = $('.category-formgroup').parent().children().length;
+    while (nbCat !== 0) {
+      l.shift().value;
+      l.shift().value;
+      nbCat--;
+    }
     while (l.length !== 0) {
       newctf.challenges.push({
         'title': l.shift().value,

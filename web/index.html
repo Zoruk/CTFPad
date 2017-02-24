@@ -209,11 +209,25 @@
       <div class="modal-body">
         <form id="ctfform">
           <input type="text" placeholder="title" class="input-xlarge" name="title">
-          <legend>Challenges</legend>
+          <legend>Category</legend>
           <div class="form-inline">
             <span class="category-formgroup">
+              <input type="text" placeholder="name" name="category">
+              <input type="number" class="input" placeholder="Influence" name="weight">
+              <a href="#" class="add-category"><i class="icon-plus"></i></a>
+              <a href="#" class="remove-category"><i class="icon-remove"></i></a><br>
+            </span>
+          </div>
+          <legend>Challenges</legend>
+          <div class="form-inline">
+            <span class="challenge-formgroup">
               <input type="text" placeholder="title" name="chaltitle">
-              <input type="text" class="input-small" placeholder="category" name="chalcategory"><!--typeahead for category, add new category on input-->
+              <!--<input type="text" class="input-small" placeholder="category" name="chalcategory">-->
+              <!--typeahead for category, add new category on input-->
+              <select class="input-small" name="category">
+                <option>
+                </option>
+              </select>
               <input type="number" class="input-mini" placeholder="points" name="chalpoints">
               <a href="#" class="add-challenge"><i class="icon-plus"></i></a>
               <a href="#" class="remove-challenge"><i class="icon-remove"></i></a><br>
