@@ -9,13 +9,13 @@
     </tr>
     {{#files}}
     <tr>
-      <td><a href="/file/{{id}}/{{name}}">{{name}}</a></td>
-      <td>{{user}}</td>
+      <td><a href="/file/{{idText}}/{{name}}">{{name}}</a></td>
+      <td>{{user.name}}</td>
       <td>{{mimetype}}</td>
-      <td><abbr class="timeago" title="{{uploaded}}">{{uploaded}}</span></td>
+      <td><abbr class="timeago" title="{{createdAt}}">{{createdAt}}</span></td>
       <td>
-        <a href="/file/{{id}}/{{name}}"><i class="icon-download-alt"></i></a>
-        <a class="deletefile" href="#" data-id="{{id}}" data-name="{{name}}"><i class="icon-trash"></i></a>
+        <a href="/file/{{idText}}/{{name}}"><i class="icon-download-alt"></i></a>
+        <a class="deletefile" href="#" data-id="{{idText}}" data-name="{{name}}"><i class="icon-trash"></i></a>
       </td>
     </tr>
     {{/files}}

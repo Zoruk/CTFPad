@@ -7,6 +7,9 @@ mv = require 'mv'
 cons = require 'consolidate'
 WebSocketServer = require('ws').Server
 db = require './database.coffee'
+models = require './models'
+bcrypt = require 'bcrypt-nodejs'
+util = require 'util'
 
 # parse config file
 config = null
@@ -41,20 +44,65 @@ options =
 server = https.createServer options, app
 scoreboards = {2: ['test','test2']}
 
+
+#Hack for having color. Pasted from etherpad source code.
+colorPalette = ["#ffc7c7", "#fff1c7", "#e3ffc7", "#c7ffd5",
+                "#c7ffff", "#c7d5ff", "#e3c7ff", "#ffc7f1",
+                "#ff8f8f", "#ffe38f", "#c7ff8f", "#8fffab",
+                "#8fffff", "#8fabff", "#c78fff", "#ff8fe3",
+                "#d97979", "#d9c179", "#a9d979", "#79d991",
+                "#79d9d9", "#7991d9", "#a979d9", "#d979c1",
+                "#d9a9a9", "#d9cda9", "#c1d9a9", "#a9d9b5",
+                "#a9d9d9", "#a9b5d9", "#c1a9d9", "#d9a9cd",
+                "#4c9c82", "#12d1ad", "#2d8e80", "#7485c3",
+                "#a091c7", "#3185ab", "#6818b4", "#e6e76d",
+                "#a42c64", "#f386e5", "#4ecc0c", "#c0c236",
+                "#693224", "#b5de6a", "#9b88fd", "#358f9b",
+                "#496d2f", "#e267fe", "#d23056", "#1a1a64",
+                "#5aa335", "#d722bb", "#86dc6c", "#b5a714",
+                "#955b6a", "#9f2985", "#4b81c8", "#3d6a5b",
+                "#434e16", "#d16084", "#af6a0e", "#8c8bd8"];
+
+newRandomId = (length = 16) ->
+    buf = new Buffer length
+    fd = fs.openSync '/dev/urandom', 'r'
+    fs.readSync fd, buf, 0, length, null
+    buf.toString 'hex'
+
+
 validateLogin = (user, pass, cb) ->
-  if user and pass then db.checkPassword user, pass, cb
-  else setImmediate cb, false
+  models.User.findOne({ where: {name: user}}).then (row) ->
+    if row is null then cb false
+    else bcrypt.compare pass, row.pwhash, (err, res) ->
+      if err or not res then cb false
+      else
+        sess = newRandomId()
+        row.update({
+          sessid: sess
+        }).then( ->
+          cb sess
+        )
 
 validateSession = (session, cb=->) ->
-  if session is undefined then setImmediate cb, false
-  else db.validateSession session, cb
+  models.User.findOne({ where: {sessid: session}}).then (user) ->
+    if user is null then cb false
+    else
+      cb user
+
 
 app.get '/', (req, res) ->
-  validateSession req.cookies.ctfpad, (user) ->
-    unless user then res.sendfile 'web/login.html'
+  validateSession req.cookies.ctfpad, (row) ->
+    unless row then res.sendfile 'web/login.html'
     else
+      user = {
+        name: row.name,
+        color: row.color,
+        scope: row.scope,
+        apikey: row.apikey,
+        sessid: row.sessid
+      }
       user.etherpad_port = config.etherpad_port
-      db.getCTFs (ctfs) ->
+      models.Ctf.findAll().then (ctfs) ->
         user.all_ctfs = ctfs
         n = 0
         user.ctfs = []
@@ -64,36 +112,28 @@ app.get '/', (req, res) ->
             user.ctfs.push(i)
           n++
         if user.current
-          ctfFilesReady = false
 
-          db.getCTFFiles user.current.id, (files) ->
-            user.current.filecount = files.length
-            ctfFilesReady = true
+          models.Ctf.findById(user.current.id, {
+            include:
+              [models.File, {
+                model: models.Challenge,
+                include: [models.File, models.User]
+              }]
+          }).then((ctf) ->
+            user.current = ctf
 
-          db.getChallenges user.current.id, (challenges) ->
             buf = {}
-            done = ->
-              doneCount++
-              if doneCount is challenges.length * 2 and ctfFilesReady # +1 for ctf filecount
-                res.render 'index.html', user
-            for challenge in challenges
-              do (challenge) ->
-                db.getChallengeFiles challenge.id, (files) ->
-                  challenge.filecount = files.length
-                  done()
-                db.getActiveUserByChal challenge.id, (users) ->
-                  challenge.activeUsers = users
-                  done()
 
-              if buf[challenge.category] is undefined then buf[challenge.category] = []
-              buf[challenge.category].push challenge
+            for c in ctf.challenges
+              if buf[c.category] is undefined then buf[c.category] = []
+              buf[c.category].push c
 
             user.categories = []
 
             for k,v of buf
               user.categories.push {name:k, challenges:v}
-
-            doneCount = 0
+            res.render 'index.html', user
+          )
         else res.render 'index.html', user
 
 app.post '/login', (req, res) ->
@@ -108,9 +148,22 @@ app.post '/register', (req, res) ->
   if req.body.name and req.body.password1 and req.body.password2 and req.body.authkey
     if req.body.password1 == req.body.password2
       if req.body.authkey == config.authkey
-        db.addUser req.body.name, req.body.password1, (err) ->
+
+        bcrypt.hash req.body.password1, bcrypt.genSaltSync(), null, (err, hash) ->
           if err then res.json {success: false, error: "#{err}"}
-          else res.json {success: true}
+          models.User.create({
+            name: req.body.name,
+            pwhash: hash,
+            color: colorPalette[Math.floor Math.random() * colorPalette.length]
+          }).then( (user) ->
+            res.json {success: true}
+          ).catch (err) ->
+            msg = ""
+            for e in err.errors
+              msg += "#{e.message}<br>"
+            res.json {success: false, error: msg}
+
+
       else res.json {success: false, error: 'incorrect authkey'}
     else res.json {success: false, error: 'passwords do not match'}
   else res.json {success: false, error: 'incomplete request'}
@@ -126,31 +179,52 @@ app.post '/changepassword', (req, res) ->
     if ans
       if req.body.newpw and req.body.newpw2
         if req.body.newpw == req.body.newpw2
-          db.changePassword req.header('x-session-id'), req.body.newpw, (err) ->
-            if err then res.json {success: false, error: "#{err}"}
-            else res.json {success: true}
+          bcrypt.hash req.body.password1, bcrypt.genSaltSync(), null, (err, hash) ->
+            models.User.update(
+              {pwhash: hash},
+              {where: {sessid: req.header('x-session-id')}}
+            ).then( (user) ->
+              res.json {success: true}
+            ).catch (err) ->
+              msg = ""
+              console.log err
+              for e in err.errors
+                msg += "#{e.message}<br>"
+              res.json {success: false, error: msg}
         else res.json {success: false, error: 'inputs do not match'}
       else res.json {success: false, error: 'incomplete request'}
     else res.json {success: false, error: 'invalid session'}
 
 app.post '/newapikey', (req, res) ->
   validateSession req.header('x-session-id'), (ans) ->
+    apikey = newRandomId 32
     if ans
-      db.newApiKeyFor req.header('x-session-id'), (apikey) ->
+      ans.apikey = apikey
+      ans.save().then( ->
         res.send apikey
+      )
     else res.send 403
 
 app.get '/scope/latest', (req, res) ->
   validateSession req.cookies.ctfpad, (ans) ->
     if ans
-      db.getLatestCtfId (id) ->
-        db.changeScope ans.name, id
-        res.redirect 303, '/'
+      models.Ctf.max('id').then (id) ->
+        ans.update({
+          scope: id
+        }).then ->
+          res.redirect 303, '/'
+    else
+      res.redirect 303, '/'
 
 app.get '/scope/:ctfid', (req, res) ->
   validateSession req.cookies.ctfpad, (ans) ->
-    if ans then db.changeScope ans.name, req.params.ctfid
-    res.redirect 303, '/'
+    if ans
+      ans.update({
+        scope: req.params.ctfid
+      }).then ->
+        res.redirect 303, '/'
+    else
+      res.redirect 303, '/'
 
 app.get '/scoreboard', (req, res) ->
   validateSession req.cookies.ctfpad, (ans) ->
@@ -167,39 +241,66 @@ app.get '/files/:objtype/:objid', (req, res) ->
         if isNaN objid
           res.send 400
           return
-        files = db[["getCTFFiles", "getChallengeFiles"][objtype]] objid, (files) ->
+        filter = [{ctfId: objid}, {challengeId: objid}][objtype]
+
+        models.File.findAll({where: filter, include: [models.User]}).then( (files) ->
           for file in files
-            file.uploaded = new Date(file.uploaded*1000).toISOString()
+            #file.uploaded = new Date(file.uploaded*1000).toISOString()
             if file.mimetype
               file.mimetype = file.mimetype.substr 0, file.mimetype.indexOf ';'
           res.render 'files.html', {files: files, objtype: req.params.objtype, objid: req.params.objid}
+        )
+
       else res.send 404
     else res.send 403
 
 app.get '/file/:fileid/:filename', (req, res) ->
   file = "#{__dirname}/uploads/#{req.params.fileid}"
   if /^[a-f0-9A-F]+$/.test(req.params.fileid) and fs.existsSync(file)
-    db.mimetypeForFile req.params.fileid, (mimetype) ->
-      res.set 'Content-Type', mimetype
+    models.File.findOne({where: {idText: req.params.fileid}}).then( (f) ->
+      res.set 'Content-Type', f.mimetype
       res.sendfile file
+    )
   else res.send 404
 
 app.get '/delete_file/:fileid', (req, res) ->
   validateSession req.cookies.ctfpad, (ans) ->
     if ans
-      file = "#{__dirname}/uploads/#{req.params.fileid}"
-      if /^[a-f0-9A-F]+$/.test(req.params.fileid) and fs.existsSync(file)
-        db.deleteFile req.params.fileid, (err, type, typeId) ->
-          unless err
-            fs.unlink file, (fserr) ->
+      fid = req.params.fileid
+      filepath = "#{__dirname}/uploads/#{fid}"
+      if /^[a-f0-9A-F]+$/.test(fid) and fs.existsSync(filepath)
+        models.File.findOne({where: {idText: fid}}).then( (file) ->
+          if file isnt null
+            fs.unlink filepath, (fserr) ->
               unless fserr
                 res.json {success: true}
-                fun = db[["getCTFFiles", "getChallengeFiles"][type]]
-                fun typeId, (files) ->
-                  wss.broadcast JSON.stringify {type: 'filedeletion', data: "#{["ctf", "challenge"][type]}#{typeId}", filecount: files.length}
+
+                type = null
+                filter = null
+                objid = null
+                if file.ctfId
+                  type = 0
+                  filter = {ctfId: file.ctfId}
+                  objid = file.ctfId
+                else if file.challengeId
+                  type = 1
+                  filter = {challengeId: file.challengeId}
+                  objid = file.challengeId
+                else
+                  file.destroy()
+                  return
+                file.destroy()
+
+                models.File.count({where: filter}).then( (nb) ->
+                  wss.broadcast JSON.stringify {type: 'fileupload', data: "#{["ctf", "challenge"][type]}#{objid}", filecount: nb}
+                )
+
+
               else res.json {success: false, error: fserr}
-          else res.json {success: false, error: err}
-      else res.json {success: false, error: "file not found"}
+          else
+            res.json {success: false, error: "file not found"}
+        )
+      else res.json {success: false, error: "file not found on disk"}
     else res.send 403
 
 upload = (user, objtype, objid, req, res) ->
@@ -208,16 +309,43 @@ upload = (user, objtype, objid, req, res) ->
     mimetype = null
     process.execFile '/usr/bin/file', ['-bi', req.files.files.path], (err, stdout) ->
       mimetype = unless err then stdout.toString()
-      db[["addCTFFile", "addChallengeFile"][type]] objid, req.files.files.name, user.name, mimetype, (err, id) ->
-        if err then res.json {success: false, error: err}
-        else
-          mv req.files.files.path, "#{__dirname}/uploads/#{id}", (err) ->
-            if err then res.json {success: false, error: err}
-            else
-              res.json {success: true, id: id}
-              fun = db[["getCTFFiles", "getChallengeFiles"][type]]
-              fun parseInt(objid), (files) ->
-                wss.broadcast JSON.stringify {type: 'fileupload', data: "#{objtype}#{objid}", filecount: files.length}
+
+      file = {
+        name: req.files.files.name,
+        idText: newRandomId 32
+        mimetype: mimetype
+        userId: user.id
+      }
+
+      condition = {}
+
+      if objtype is 'ctf'
+        file.ctfId = objid
+        condition = {
+          ctfId: objid
+        }
+      else if objtype is 'challenge'
+        file.challengeId = objid
+        condition = {
+          challengeId: objid
+        }
+
+      models.File.create(file).then( (f) ->
+        mv req.files.files.path, "#{__dirname}/uploads/#{file.idText}", (err) ->
+          if err then res.json {success: false, error: err}
+          else
+            res.json {success: true, id: file.idText}
+            models.File.count({where: condition}).then( (nb) ->
+              wss.broadcast JSON.stringify {type: 'fileupload', data: "#{objtype}#{objid}", filecount: nb}
+            )
+
+      ).catch( (err) ->
+        msg = ""
+        console.log err
+        for e in err.errors
+          msg += "#{e.message}<br>"
+        res.json {success: false, error: msg}
+      )
   else res.send 400
 
 app.post '/upload/:objtype/:objid', (req, res) ->
@@ -226,8 +354,8 @@ app.post '/upload/:objtype/:objid', (req, res) ->
       upload user, req.params.objtype, req.params.objid, req, res
     else res.send 403
 
-api = require './api.coffee'
-api.init app, db, upload, ''
+#api = require './api.coffee'
+#api.init app, db, upload, ''
 
 ## PROXY INIT
 proxyTarget = {host: 'localhost', port: config.etherpad_internal_port}
@@ -273,33 +401,59 @@ wss.broadcast = (msg, exclude, scope=null) ->
         c.send msg
       catch e
         console.log e
-api.broadcast = (obj, scope) -> wss.broadcast JSON.stringify(obj), null, scope
+#api.broadcast = (obj, scope) -> wss.broadcast JSON.stringify(obj), null, scope
 wss.getClients = -> this.clients
 wss.on 'connection', (sock) ->
   sock.on 'close', ->
     if sock.authenticated
       wss.broadcast JSON.stringify {type: 'logout', data: sock.authenticated.name}
-      db.setActiveChallenge sock.authenticated.name, null
+      sock.authenticated.challengeId = null
+      sock.authenticated.save()
   sock.on 'message', (message) ->
     msg = null
     try msg = JSON.parse(message) catch e then return
-    unless sock.authenticated 
+    unless sock.authenticated
       if typeof msg is 'string'
         validateSession msg, (ans) ->
           if ans
             sock.authenticated = ans
             # send assignments on auth
             if ans.scope
-              db.listAssignments ans.scope, (list) ->
-                for i in list
-                  sock.send JSON.stringify {type: 'assign', subject: i.challenge, data: [{name: i.user}, true]}
+              models.Ctf.findById(ans.scope, {
+                include:
+                  [{
+                    model: models.Chat,
+                    include: [models.User]
+                  },
+                  {
+                    model: models.Challenge,
+                    include: [{
+                      model: models.User,
+                      as: 'assigneds'
+                    }]
+                  }]
+              }).then((ctf) ->
+                if ctf is null then return
 
-              # Chat
-              db.getChatMessages ans.scope, (msgs) ->
-                sock.send JSON.stringify {type: 'chat', data: msgs}
-                #chatMessages = []
-                #for msg in msgs
-                #  chatMessages.push {name: msg.user, message: msg.message, color: msg.color}
+                chatMessages = []
+                for msg in ctf.chats
+                  chatMessages.push {
+                    name: msg.user.name,
+                    message: msg.message,
+                    color: msg.user.color,
+                    time: msg.createdAt
+                  }
+                sock.send JSON.stringify {type: 'chat', data: chatMessages}
+
+                for chal in ctf.challenges
+                  for user in chal.assigneds
+                    sock.send JSON.stringify {
+                      type: 'assign',
+                      subject: chal.id,
+                      data: [{name: user.name}, true]}
+
+
+              )
 
             # notify all users about new authentication and notify new socket about other users
             wss.broadcast JSON.stringify {type: 'login', data: ans.name}
@@ -310,34 +464,80 @@ wss.on 'connection', (sock) ->
       if msg.type and msg.type is 'done'
         clean = {data: Boolean(msg.data), subject: msg.subject, type: 'done'}
         wss.broadcast JSON.stringify(clean), null
-        db.setChallengeDone clean.subject, clean.data
+        models.Challenge.update(
+          {done: Boolean(msg.data)},
+          {where: {id: msg.subject}}
+        )
+
       else if msg.type and msg.type is 'assign'
-        db.toggleAssign sock.authenticated.name, msg.subject, (hasBeenAssigned) ->
-          data = [{name:sock.authenticated.name},hasBeenAssigned]
+        models.Assigned.findCreateFind({
+          where: {
+            challengeId: msg.subject,
+            userId: sock.authenticated.id
+          }
+        }).spread( (assigned, created) ->
+          if not created
+            assigned.destroy()
+          data = [{name:sock.authenticated.name}, created]
           wss.broadcast JSON.stringify({type: 'assign', data: data, subject: msg.subject}), null
+        ).catch( (err) ->
+          console.log err
+        )
+
       else if msg.type and msg.type is 'newctf'
-        db.addCTF msg.data.title, (ctfid) ->
-          for c in msg.data.challenges
-            db.addChallenge ctfid, c.title, c.category, c.points
+        challenges = []
+        for c in msg.data.challenges
+          challenges.push {
+            title: c.title,
+            category: c.category,
+            points: c.points,
+            done: false
+          }
+        models.Ctf.create({
+          name: msg.data.title,
+          challenges: challenges
+        }, {
+          include: [models.Challenge]
+        })
+
       else if msg.type and msg.type is 'modifyctf'
         for c in msg.data.challenges
           if c.id
-            db.modifyChallenge c.id, c.title, c.category, c.points
+            models.Challenge.update({
+              title: c.title,
+              category: c.category,
+              points: c.points
+            }, {
+              where: {
+                id: c.id
+              }
+            })
           else
-            db.addChallenge msg.data.ctf, c.title, c.category, c.points
+            models.Challenge.create({
+              title: c.title,
+              category: c.category,
+              points: c.points,
+              ctfId: sock.authenticated.scope
+            })
         for s in wss.clients
           if s.authenticated and s.authenticated.scope is msg.data.ctf
             s.send JSON.stringify {type: 'ctfmodification'}
+
       else if msg.type and msg.type is 'setactive'
         if msg.subject
-          db.setActiveChallenge sock.authenticated.name, msg.subject
-          wss.broadcast JSON.stringify {
-            type: 'setactive',
-            challenge: msg.subject,
-            name: sock.authenticated.name,
-            color: sock.authenticated.color
-          }
+          models.Challenge.findById(msg.subject).then (chal) ->
+            if chal is null then return
+            sock.authenticated.challengeId = chal.id
+            sock.authenticated.save()
+            wss.broadcast JSON.stringify {
+              type: 'setactive',
+              challenge: chal.id,
+              name: sock.authenticated.name,
+              color: sock.authenticated.color
+            }
+
       else if msg.type and msg.type is 'chat'
+        # tode block xss
         if msg.message and typeof msg.message is 'string'
           time = new Date().toISOString();
 
@@ -346,12 +546,13 @@ wss.on 'connection', (sock) ->
             message: msg.message,
             color: sock.authenticated.color,
             time: time
-          }]}
+          }]}, sock.authenticated.scope
 
-          db.addChatMessage sock.authenticated.name,
-            msg.message, 
-            time,
-            sock.authenticated.scope
+          models.Chat.create {
+            message: msg.message
+            userId: sock.authenticated.id,
+            ctfId: sock.authenticated.scope
+          }
 
       else console.log msg
 

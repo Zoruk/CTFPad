@@ -127,7 +127,7 @@
                 <a href="#ctf{{id}}" class="contentlink"><strong>{{current.name}}</strong></a>
                 <span class="pull-right">
                   <!-- <a href="#" data-toggle="popover" class="scoreboard-toggle"><i class="icon-th-list"></i></a>&nbsp; -->
-                  <a href="#ctf{{id}}files" class="contentlink"><i class="icon-folder-{{#filecount}}open{{/filecount}}{{^filecount}}close{{/filecount}}"></i></a> <sup>{{filecount}}</sup>
+                  <a href="#ctf{{id}}files" class="contentlink"><i class="icon-folder-{{#files.length}}open{{/files.length}}{{^files.length}}close{{/files.length}}"></i></a> <sup>{{files.length}}</sup>
                 </span>
               </div>
               <div class="progress progress-striped">
@@ -162,15 +162,15 @@
                       <td class="padded" width="100%"{{#done}} style="text-decoration:line-through"{{/done}}>
                         <a href="#challenge{{id}}" class="contentlink">[{{points}}] {{title}}</a>
                         <div id="activeUsers{{id}}">
-                          {{#activeUsers}}
+                          {{#users}}
                             <span class="active-user" style="background-color: {{color}}" data-name="{{name}}">{{name}}</span>
-                          {{/activeUsers}}
+                          {{/users}}
                         </div>
                       </td>
                       <td class="padded"><a href="#challenge{{id}}" class="contentlink"><i class="icon-edit"></i></a></td>
                       <td class="padded" nowrap>
-                        <a href="#challenge{{id}}files" class="contentlink"><i class="icon-folder-{{#filecount}}open{{/filecount}}{{^filecount}}close{{/filecount}}"></i></a>
-                        <sup>{{filecount}}</sup></td>
+                        <a href="#challenge{{id}}files" class="contentlink"><i class="icon-folder-{{#files.length}}open{{/files.length}}{{^files.length}}close{{/files.length}}"></i></a>
+                        <sup>{{files.length}}</sup></td>
                       <td nowrap>
                         <a data-toggle="popover" data-placement="right" data-trigger="manual" class="assignments" data-title="{{title}}"><i class="icon-user"></i></a>
                         <sup class="assignment-count" data-chalid="{{id}}">0</sup>
