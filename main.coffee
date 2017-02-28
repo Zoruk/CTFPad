@@ -6,7 +6,6 @@ fs = require 'fs'
 mv = require 'mv'
 cons = require 'consolidate'
 WebSocketServer = require('ws').Server
-db = require './database.coffee'
 models = require './models'
 bcrypt = require 'bcrypt-nodejs'
 util = require 'util'
