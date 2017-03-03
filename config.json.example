@@ -4,5 +4,11 @@
 	"etherpad_internal_port": 9001,
 	"keyfile": "key.pem",
 	"certfile": "cert.pem",
-	"authkey": "CHANGE_THIS"
+	"authkey": "CHANGE_THIS",
+	"defaultImpact": "Medium",
+	"impacts": {
+		"Low": 0.5,
+		"Medium": 1,
+		"High": 1.5
+	}
 }

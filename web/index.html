@@ -148,16 +148,16 @@
             <div class="well">
               <table width="100%">
                 <tr width="100%">
-                  <td colspan="5" align="right" width="100%">
+                  <td colspan="4" align="right" width="100%">
                     <button id="hidefinished" type="button" class="btn btn-mini" data-toggle="button">hide finished</button>
                   </td>
                 </tr>
                 {{#categories}}
                   <tr class="category" data-category="{{name}}">
-                    <td colspan="5"><strong>{{name}} [<span class="done-count">0</span>/{{challenges.length}}]</strong></td>
+                    <td colspan="4"><strong>{{name}} [<span class="done-count">0</span>/{{challenges.length}}]</strong></td>
                   </tr>
                   {{#challenges}}
-                  <tr class="{{#points}}challenge{{/points}} {{#done}}done{{/done}} highlightable" data-chalpoints="{{points}}" data-category="{{name}}" data-challengeid="{{id}}">
+                  <tr class="{{#points}}challenge{{/points}} {{#done}}done{{/done}} highlightable" data-chalpoints="{{points}}" data-category="{{name}}" data-challengeid="{{id}}" data-impactvalue="{{impactvalue}}">
                       <td class="padded"><input type="checkbox" data-chalid="{{id}}"{{#done}} checked{{/done}} autocomplete="off"></td>
                       <td class="padded" width="100%"{{#done}} style="text-decoration:line-through"{{/done}}>
                         <a href="#challenge{{id}}" class="contentlink">[{{points}}] {{title}}</a>
@@ -167,11 +167,30 @@
                           {{/users}}
                         </div>
                       </td>
-                      <td class="padded"><a href="#challenge{{id}}" class="contentlink"><i class="icon-edit"></i></a></td>
+
                       <td class="padded" nowrap>
                         <a href="#challenge{{id}}files" class="contentlink"><i class="icon-folder-{{#files.length}}open{{/files.length}}{{^files.length}}close{{/files.length}}"></i></a>
-                        <sup>{{files.length}}</sup></td>
-                      <td nowrap>
+                        <sup>{{files.length}}</sup>
+                      </td>
+
+                      <td class="padded">
+                        <a data-toggle="popover" data-placement="right" data-trigger="manual" href="#challenge{{id}}" class="impact"  data-title="{{title}}">
+                          <i class="icon-edit"></i>
+                        </a>
+                        <div style="display:none" class="popover-content">
+                          <div align="center" style="margin-bottom:10px">
+                            <select name="impact" data-chalid="{{id}}">
+                              {{#impacts}}
+                              <option value="{{name}}" {{#selected}}selected{{/selected}}>{{name}}</option>
+                              {{/impacts}}
+                            </select>
+                            <button class="btn btn-mini" data-chalid="{{id}}">Set</button>
+                          </div>
+                          <ul class="unstyled labels" data-chalid="{{id}}"></ul>
+                        </div>
+                      </td>
+
+                      <!--<td nowrap>
                         <a data-toggle="popover" data-placement="right" data-trigger="manual" class="assignments" data-title="{{title}}"><i class="icon-user"></i></a>
                         <sup class="assignment-count" data-chalid="{{id}}">0</sup>
                         <div style="display:none" class="popover-content">
@@ -180,7 +199,7 @@
                           </div>
                           <ul class="unstyled labels" data-chalid="{{id}}"></ul>
                         </div>
-                      </td>
+                      </td>-->
                     </tr>
                   {{/challenges}}
                 {{/categories}}

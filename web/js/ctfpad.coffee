@@ -75,6 +75,13 @@ $ ->
         if $("#chat-scroll").prop 'checked'
             $(".chat-body").animate { scrollTop: $(".chat-body").prop "scrollHeight" }
 
+      else if msg.type is 'setimpact'
+        console.log msg
+        chal = $(".challenge[data-challengeid=#{msg.id}]")
+        chal.attr('data-impactvalue', msg.value)
+          .find('option').attr('selected', false)
+        chal.find("option[value=#{msg.name}]").attr('selected', true)
+        window.updatePriority()
       else
         alert event.data
       #TODO handle events
@@ -171,14 +178,29 @@ $ ->
   $("input[type='checkbox']").change ->
     $(this).parent().next().css 'text-decoration',if this.checked then 'line-through' else 'none'
     sock.send JSON.stringify {type:'done', subject:parseInt($(this).attr('data-chalid')), data:this.checked}
+    window.updatePriority()
 
-  $('.assignments').popover({html:true, content: -> $(this).parent().find('.popover-content').html()}).click (e)->
-    $('.assignments').not(this).popover('hide')
+  $('.impact').popover({
+    html:true,
+    content: -> $(this).parent().find('.popover-content').html()
+  }).click (e)->
+    $('.impact').not(this).popover('hide')
     $(this).popover 'toggle'
     e.stopPropagation()
-  $('html').click ->
-    $('.assignments').popover('hide')
 
+  $('html').click ->
+    $('.impact').popover('hide')
+
+  window.setImpact = (chalId, impact) ->
+    sock.send JSON.stringify {
+      type: 'setimpact',
+      impact: impact,
+      id: chalId
+    }
+
+  $('body').delegate 'select[name=impact]', 'change', ->
+    self = $(this)
+    window.setImpact self.attr('data-chalid'), self.val()
 
   $('.scoreboard-toggle').popover {html: true, content: ->
     $.get '/scoreboard', (ans) -> #FIXME function gets executed twice?
@@ -211,16 +233,15 @@ $ ->
     $('#deletefilemodal').data('fileid', fileid).modal 'show'
     return false
 
-
-  $('body').delegate '.btn-chat', 'click', -> 
+  $('body').delegate '.btn-chat', 'click', ->
     mymessage = $('.form-chat-send').val()
     $('.form-chat-send').val ""
     sock.send JSON.stringify {
       type: 'chat',
       message: mymessage
     }
-  
-  $('body').delegate '.form-chat-send', 'keypress', (event) -> 
+
+  $('body').delegate '.form-chat-send', 'keypress', (event) ->
     keycode = if event.keyCode then event.keyCode else event.which
     if keycode is 13 or keycode is '13'
       mymessage = $('.form-chat-send').val()
@@ -238,6 +259,48 @@ $ ->
       $('#hidefinishedcss').remove()
       $.cookie 'ctfpad_hide', 'false'
   if $.cookie('ctfpad_hide') is 'true' then $('#hidefinished').click()
+
+  window.updatePriority = ->
+    max = 0
+    chals = $('.challenge')
+
+    priority = (chal) ->
+      if chal.find('input[type=checkbox]').prop('checked')
+        return 0
+      chal.attr('data-impactvalue') * chal.attr('data-chalpoints')
+
+    chals.each ->
+      max = Math.max(max, priority($(this)))
+
+    chals.each ->
+
+      self = $(this);
+      challengeId = self.attr('data-challengeid')
+      checked = self.find('input[type=checkbox]').prop('checked')
+      cellToColor = self.children().eq(1)
+
+      if checked
+        cellToColor.css {
+          'background': 'transparent',
+          'text-decoration': 'line-through'
+        }
+      else
+        pct = priority(self) / max * 100
+        color = 'rgba(46, 204, 113, .5)'
+        if pct > 85
+          color = 'rgba(255, 0, 0, .7)'
+        gradientStyle = "#{color} #{pct}%,transparent #{pct}%, transparent 100%"
+
+        style = [
+            "background: -webkit-linear-gradient(left, #{gradientStyle})",
+            "background: -o-linear-gradient(right, #{gradientStyle})",
+            "background: -moz-linear-gradient(right, #{gradientStyle})",
+            "background: linear-gradient(to right, #{gradientStyle})"
+        ].join(';')
+        cellToColor.attr 'style', style
+      #console.log self.attr('data-challengeid'), self.width(), self.height(), self.position()
+
+  window.updatePriority()
 
   window.newctf = ->
     l = $('#ctfform').serializeArray()

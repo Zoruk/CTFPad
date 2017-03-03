@@ -125,6 +125,18 @@ app.get '/', (req, res) ->
 
             for c in ctf.challenges
               if buf[c.category] is undefined then buf[c.category] = []
+              c.impacts = []
+              for name, value of config.impacts
+                c.impacts.push {
+                  name: name,
+                  value: value,
+                  selected: c.impact is name
+                }
+              if config.impacts[c.impact]
+                c.impactvalue = config.impacts[c.impact]
+              else
+                c.impactvalue = 1
+
               buf[c.category].push c
 
             user.categories = []
@@ -490,6 +502,7 @@ wss.on 'connection', (sock) ->
             title: c.title,
             category: c.category,
             points: c.points,
+            impact: config.defaultImpact,
             done: false
           }
         models.Ctf.create({
@@ -516,7 +529,8 @@ wss.on 'connection', (sock) ->
               title: c.title,
               category: c.category,
               points: c.points,
-              ctfId: sock.authenticated.scope
+              ctfId: sock.authenticated.scope,
+              impact: config.defaultImpact
             })
         for s in wss.clients
           if s.authenticated and s.authenticated.scope is msg.data.ctf
@@ -552,6 +566,20 @@ wss.on 'connection', (sock) ->
             userId: sock.authenticated.id,
             ctfId: sock.authenticated.scope
           }
+      else if msg.type and msg.type is 'setimpact'
+        if msg.id and msg.impact and config.impacts[msg.impact]
+          models.Challenge.update({
+            impact: msg.impact
+          },{
+            where: {id: msg.id}
+          })
+          wss.broadcast JSON.stringify {
+            type: 'setimpact',
+            id: msg.id,
+            value: config.impacts[msg.impact],
+            name: msg.impact
+          }
+      
 
       else console.log msg
 

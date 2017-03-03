@@ -12,7 +12,7 @@ $(function() {
       }
     };
     return sock.onmessage = function(event) {
-      var current, i, len, msg, msgData, ref, self, subject, user;
+      var chal, current, i, len, msg, msgData, ref, self, subject, user;
       msg = JSON.parse(event.data);
       if (msg.type === 'done') {
         self = $("input[data-chalid='" + msg.subject + "']");
@@ -72,6 +72,12 @@ $(function() {
             scrollTop: $(".chat-body").prop("scrollHeight")
           });
         }
+      } else if (msg.type === 'setimpact') {
+        console.log(msg);
+        chal = $(".challenge[data-challengeid=" + msg.id + "]");
+        chal.attr('data-impactvalue', msg.value).find('option').attr('selected', false);
+        chal.find("option[value=" + msg.name + "]").attr('selected', true);
+        return window.updatePriority();
       } else {
         return alert(event.data);
       }
@@ -190,24 +196,37 @@ $(function() {
   });
   $("input[type='checkbox']").change(function() {
     $(this).parent().next().css('text-decoration', this.checked ? 'line-through' : 'none');
-    return sock.send(JSON.stringify({
+    sock.send(JSON.stringify({
       type: 'done',
       subject: parseInt($(this).attr('data-chalid')),
       data: this.checked
     }));
+    return window.updatePriority();
   });
-  $('.assignments').popover({
+  $('.impact').popover({
     html: true,
     content: function() {
       return $(this).parent().find('.popover-content').html();
     }
   }).click(function(e) {
-    $('.assignments').not(this).popover('hide');
+    $('.impact').not(this).popover('hide');
     $(this).popover('toggle');
     return e.stopPropagation();
   });
   $('html').click(function() {
-    return $('.assignments').popover('hide');
+    return $('.impact').popover('hide');
+  });
+  window.setImpact = function(chalId, impact) {
+    return sock.send(JSON.stringify({
+      type: 'setimpact',
+      impact: impact,
+      id: chalId
+    }));
+  };
+  $('body').delegate('select[name=impact]', 'change', function() {
+    var self;
+    self = $(this);
+    return window.setImpact(self.attr('data-chalid'), self.val());
   });
   $('.scoreboard-toggle').popover({
     html: true,
@@ -283,6 +302,43 @@ $(function() {
   if ($.cookie('ctfpad_hide') === 'true') {
     $('#hidefinished').click();
   }
+  window.updatePriority = function() {
+    var chals, max, priority;
+    max = 0;
+    chals = $('.challenge');
+    priority = function(chal) {
+      if (chal.find('input[type=checkbox]').prop('checked')) {
+        return 0;
+      }
+      return chal.attr('data-impactvalue') * chal.attr('data-chalpoints');
+    };
+    chals.each(function() {
+      return max = Math.max(max, priority($(this)));
+    });
+    return chals.each(function() {
+      var cellToColor, challengeId, checked, color, gradientStyle, pct, self, style;
+      self = $(this);
+      challengeId = self.attr('data-challengeid');
+      checked = self.find('input[type=checkbox]').prop('checked');
+      cellToColor = self.children().eq(1);
+      if (checked) {
+        return cellToColor.css({
+          'background': 'transparent',
+          'text-decoration': 'line-through'
+        });
+      } else {
+        pct = priority(self) / max * 100;
+        color = 'rgba(46, 204, 113, .5)';
+        if (pct > 85) {
+          color = 'rgba(255, 0, 0, .7)';
+        }
+        gradientStyle = color + " " + pct + "%,transparent " + pct + "%, transparent 100%";
+        style = ["background: -webkit-linear-gradient(left, " + gradientStyle + ")", "background: -o-linear-gradient(right, " + gradientStyle + ")", "background: -moz-linear-gradient(right, " + gradientStyle + ")", "background: linear-gradient(to right, " + gradientStyle + ")"].join(';');
+        return cellToColor.attr('style', style);
+      }
+    });
+  };
+  window.updatePriority();
   window.newctf = function() {
     var l, newctf;
     l = $('#ctfform').serializeArray();
