@@ -397,7 +397,8 @@ proxyServer = https.createServer options, (req, res) ->
     if ans then proxy.ws req, socket, head else res.send 403###
 
 ## START ETHERPAD
-etherpad = process.spawn 'etherpad-lite/bin/run.sh'
+etherpad = process.exec "cd #{__dirname}/etherpad-lite && node ./src/node/server.js"
+
 etherpad.stdout.on 'data', (line) ->
   console.log "[etherpad] #{line.toString 'utf8', 0, line.length-1}"
 etherpad.stderr.on 'data', (line) ->
@@ -462,8 +463,6 @@ wss.on 'connection', (sock) ->
                       type: 'assign',
                       subject: chal.id,
                       data: [{name: user.name}, true]}
-
-
               )
 
             # notify all users about new authentication and notify new socket about other users
@@ -579,7 +578,6 @@ wss.on 'connection', (sock) ->
             value: config.impacts[msg.impact],
             name: msg.impact
           }
-      
 
       else console.log msg
 
