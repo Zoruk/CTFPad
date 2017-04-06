@@ -53,75 +53,75 @@
   </head>
   <body>
 
-		<div class="container-fluid">
-			<div class="row" id="row-navbar" >
-				<nav class="navbar navbar-inverse">
-				  <div class="container-fluid">
-				    <div class="navbar-header">
-				      <a class="navbar-brand" href="#">SwissMadeSecurity Pad</a>
-							<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-								<span class="sr-only">Toggle navigation</span>
-								<span class="glyphicon glyphicon-bar"></span>
-								<span class="glyphicon glyphicon-bar"></span>
-								<span class="glyphicon glyphicon-bar"></span>
-							</button>
-						</div>
-						<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-							<ul class="nav navbar-nav navbar-right">
-				        <li>
-				          <div class="btn-group">
-				            <button type="button" class="btn btn-default navbar-btn" href="#usermodal" data-toggle="modal">
-											<span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span> Userlist [<span id="usercount">0</span>]
-				            </button>
-				          </div>
-				          &nbsp;&nbsp;
-				        </li>
-				        <li>
-				          <div class="btn-group" role="group">              	
-										{{#current}}
-				            <button type="button" class="btn btn-default navbar-btn" href="#ctfmodifymodal" data-toggle="modal">
-											<i class="glyphicon glyphicon-flag"></i>
-				              {{current.name}}
-				            </button>
-										{{/current}}
-				         	 	{{^current}}
-				            <button type="button" class="btn btn-default navbar-btn">no CTF chosen</button>
-				          	{{/current}}
-										<button type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="dropdown" >
-											<span class="caret"></span>
-										</button>
-				            <ul class="dropdown-menu">
-				              {{#ctfs}}
-				                <li><a href="/scope/{{id}}">{{name}}</a></li>
-				              {{/ctfs}}
-				              <li role="separator" class="divider"></li>
-				              <li><a href="#allctfsmodal" data-toggle="modal">All CTFs</a></li>
-				              <li><a href="#ctfmodal" data-toggle="modal">Add a CTF</a></li>
-				            </ul>
-				          </div>
-								&nbsp;&nbsp;
-				        </li>
-				        <li>
-				          <div class="btn-group">
-				            <button type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="dropdown" href="#">
-				              <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{name}}
-				              <span class="caret"></span>
-				            </button>
-				            <ul class="dropdown-menu">
-				              <li><a href="#passwordmodal" data-toggle="modal">Change Password</a></li>
-				              <!--<li><a href="#apikeymodal" data-toggle="modal">API Key</a></li> -->
-				              <!--<li role="separator" class="divider"></li> -->
-				              <!--<li><a href="/doc/API.html">API Documentation</a></li> -->
-				              <li role="separator" class="divider"></li>
-				              <li><a href="/logout">Log out</a></li>
-				            </ul>
-				          </div>
-				        </li>
-				      </ul>
-				    </div>
-				  </div>
-				</nav>
-			</div>
+    <div class="container-fluid">
+      <div class="row" id="row-navbar" >
+        <nav class="navbar navbar-inverse">
+          <div class="container-fluid">
+            <div class="navbar-header">
+              <a class="navbar-brand" href="#">SwissMadeSecurity Pad</a>
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="glyphicon glyphicon-bar"></span>
+                <span class="glyphicon glyphicon-bar"></span>
+                <span class="glyphicon glyphicon-bar"></span>
+              </button>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <ul class="nav navbar-nav navbar-right">
+                <li>
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-default navbar-btn" href="#usermodal" data-toggle="modal">
+                      <span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span> Userlist [<span id="usercount">0</span>]
+                    </button>
+                  </div>
+                  &nbsp;&nbsp;
+                </li>
+                <li>
+                  <div class="btn-group" role="group">                
+                    {{#current}}
+                    <button type="button" class="btn btn-default navbar-btn" href="#ctfmodifymodal" data-toggle="modal">
+                      <i class="glyphicon glyphicon-flag"></i>
+                      {{current.name}}
+                    </button>
+                    {{/current}}
+                      {{^current}}
+                    <button type="button" class="btn btn-default navbar-btn">no CTF chosen</button>
+                    {{/current}}
+                    <button type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="dropdown" >
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                      {{#ctfs}}
+                        <li><a href="/scope/{{id}}">{{name}}</a></li>
+                      {{/ctfs}}
+                      <li role="separator" class="divider"></li>
+                      <li><a href="#allctfsmodal" data-toggle="modal">All CTFs</a></li>
+                      <li><a href="#ctfmodal" data-toggle="modal">Add a CTF</a></li>
+                    </ul>
+                  </div>
+                &nbsp;&nbsp;
+                </li>
+                <li>
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="dropdown" href="#">
+                      <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{name}}
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a href="#passwordmodal" data-toggle="modal">Change Password</a></li>
+                      <!--<li><a href="#apikeymodal" data-toggle="modal">API Key</a></li> -->
+                      <!--<li role="separator" class="divider"></li> -->
+                      <!--<li><a href="/doc/API.html">API Documentation</a></li> -->
+                      <li role="separator" class="divider"></li>
+                      <li><a href="/logout">Log out</a></li>
+                    </ul>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </div>
       <div class="row">
         <div class="col-sm-3">
           {{#current}}
@@ -240,174 +240,174 @@
         {{^current}}no CTF chosen{{/current}}
       </div>
     </div>
-		  <div id="allctfsmodal" class="modal fade">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-						  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-						  <h3>all CTFs</h3>
-						</div>
-						<div class="modal-body">
-						  <ul>
-						    {{#all_ctfs}}
-						      <li><a href="/scope/{{id}}">{{name}}</a></li>
-						    {{/all_ctfs}}
-						  </ul>
-						</div>
-					</div>
-				</div>
-			</div>
-		  <div id="ctfmodal" class="modal fade">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-						  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-						  <h3>new CTF</h3>
-						</div>
-						<div class="modal-body">
-						  <form id="ctfform">
-						    <input type="text" placeholder="Title" class="input-xlarge" name="title">
-						    <legend>Challenges</legend>
-						    <div class="form-inline">
-						      <span class="category-formgroup">
-						        <input type="text" placeholder="Title" name="chaltitle">
-						        <input type="text" class="input-small" placeholder="Category" name="chalcategory"><!--typeahead for category, add new category on input-->
-						        <input type="number" class="input-mini" placeholder="Points" name="chalpoints">
-						        <a href="#" class="add-challenge"><i class="glyphicon glyphicon-plus"></i></a>
-						        <a href="#" class="remove-challenge"><i class="glyphicon glyphicon-remove"></i></a><br>
-						      </span>
-						    </div>
-						  </form>
-						</div>
-						<div class="modal-footer">
-						  <a href="#" class="btn" data-dismiss="modal">Close</a>
-						  <a href="#" class="btn btn-primary" onclick="window.newctf()">Submit</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		  <div id="passwordmodal" class="modal fade">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-						  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-						  <h3>Change Password</h3>
-						</div>
-						<div class="modal-body">
-						  <div class="alert hide"></div>
-						  <form id="passwordform" class="form-horizontal">
-						    <div class="control-group">
-						      <label class="control-label">New password:</label>
-						      <div class="controls">
-						        <input type="password" name="newpw" />
-						      </div>
-						    </div>
-						    <div class="control-group">
-						      <label class="control-label">Repeat password:</label>
-						      <div class="controls">
-						        <input type="password" name="newpw2" />
-						      </div>
-						    </div>
-						  </form>
-						</div>
-						<div class="modal-footer">
-						  <a href="#" class="btn" data-dismiss="modal">Close</a>
-						  <a href="#" class="btn btn-primary" onclick="window.changepw()">Submit</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		  <div id="apikeymodal" class="modal fade">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-						  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-						  <h3>Your API Key</h3>
-						</div>
-						<div class="modal-body">
-						  <textarea id="apikey" type="text" class="input-xlarge" readonly>{{apikey}}</textarea><br>
-						  <button class="btn btn-danger" onclick="window.newapikey()">request new key</button>
-						</div>
-						<div class="modal-footer">
-						  <a href="#" class="btn btn-primary" data-dismiss="modal">Close</a>
-						</div>
-					</div>
-				</div>
-			</div>
+      <div id="allctfsmodal" class="modal fade">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h3>all CTFs</h3>
+            </div>
+            <div class="modal-body">
+              <ul>
+                {{#all_ctfs}}
+                  <li><a href="/scope/{{id}}">{{name}}</a></li>
+                {{/all_ctfs}}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="ctfmodal" class="modal fade">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h3>new CTF</h3>
+            </div>
+            <div class="modal-body">
+              <form id="ctfform">
+                <input type="text" placeholder="Title" class="input-xlarge" name="title">
+                <legend>Challenges</legend>
+                <div class="form-inline">
+                  <span class="category-formgroup">
+                    <input type="text" placeholder="Title" name="chaltitle">
+                    <input type="text" class="input-small" placeholder="Category" name="chalcategory"><!--typeahead for category, add new category on input-->
+                    <input type="number" class="input-mini" placeholder="Points" name="chalpoints">
+                    <a href="#" class="add-challenge"><i class="glyphicon glyphicon-plus"></i></a>
+                    <a href="#" class="remove-challenge"><i class="glyphicon glyphicon-remove"></i></a><br>
+                  </span>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <a href="#" class="btn" data-dismiss="modal">Close</a>
+              <a href="#" class="btn btn-primary" onclick="window.newctf()">Submit</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="passwordmodal" class="modal fade">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h3>Change Password</h3>
+            </div>
+            <div class="modal-body">
+              <div class="alert hide"></div>
+              <form id="passwordform" class="form-horizontal">
+                <div class="control-group">
+                  <label class="control-label">New password:</label>
+                  <div class="controls">
+                    <input type="password" name="newpw" />
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="control-label">Repeat password:</label>
+                  <div class="controls">
+                    <input type="password" name="newpw2" />
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <a href="#" class="btn" data-dismiss="modal">Close</a>
+              <a href="#" class="btn btn-primary" onclick="window.changepw()">Submit</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="apikeymodal" class="modal fade">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h3>Your API Key</h3>
+            </div>
+            <div class="modal-body">
+              <textarea id="apikey" type="text" class="input-xlarge" readonly>{{apikey}}</textarea><br>
+              <button class="btn btn-danger" onclick="window.newapikey()">request new key</button>
+            </div>
+            <div class="modal-footer">
+              <a href="#" class="btn btn-primary" data-dismiss="modal">Close</a>
+            </div>
+          </div>
+        </div>
+      </div>
     {{#current}}
-		  <div id="ctfmodifymodal" class="modal fade">
-				<div class="modal-dialog">
-					<div class="modal-content">
-				    <div class="modal-header">
-				      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				      <h3>{{current.name}}</h3>
-				    </div>
-				    <div class="modal-body">
-				      <form id="ctfmodifyform" autocomplete="off">
-				        <legend>Challenges</legend>
-				        <div class="form-inline">
-				          {{^categories}}
-				          <span class="category-formgroup dummy">
-				            <input type="hidden" name="chalid" value="{{id}}">
-				            <input type="text" placeholder="title" name="chaltitle" value="{{title}}" class="hide" autocomplete="off">
-				            <input type="text" class="input-small hide" placeholder="category" name="chalcategory" value="{{category}}" autocomplete="off">
-				            <input type="number" class="input-mini hide" placeholder="points" name="chalpoints" value="{{points}}" autocomplete="off">
-				            <a href="#" class="add-challenge"><i class="glyphicon glyphicon-plus"></i></a>
-				          </span><br>
-				          {{/categories}}
-				          {{#categories}}{{#challenges}}
-				          <span class="category-formgroup">
-				            <input type="hidden" name="chalid" value="{{id}}">
-				            <input type="text" placeholder="title" name="chaltitle" value="{{title}}" autocomplete="off">
-				            <input type="text" class="input-small" placeholder="category" name="chalcategory" value="{{category}}" data-provide="typeahead" data-items="4" data-source='[{{#categories}}"{{name}}",{{/categories}}""]' data-placement="above" autocomplete="off">
-				            <input type="number" class="input-mini" placeholder="points" name="chalpoints" value="{{points}}" autocomplete="off">
-				            <a href="#" class="add-challenge"><i class="glyphicon glyphicon-plus"></i></a>
-				          </span><br>
-				          {{/challenges}}{{/categories}}
-				        </div>
-				      </form>
-				      <br><br><br><br>
-				    </div>
-				    <div class="modal-footer">
-				      <a href="#" class="btn" data-dismiss="modal">Close</a>
-				      <a href="#" class="btn btn-primary" onclick="window.modifyctf()">Submit</a>
-				    </div>
-			 	 	</div>
-				</div>
-			</div>
-		{{/current}}
+      <div id="ctfmodifymodal" class="modal fade">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h3>{{current.name}}</h3>
+            </div>
+            <div class="modal-body">
+              <form id="ctfmodifyform" autocomplete="off">
+                <legend>Challenges</legend>
+                <div class="form-inline">
+                  {{^categories}}
+                  <span class="category-formgroup dummy">
+                    <input type="hidden" name="chalid" value="{{id}}">
+                    <input type="text" placeholder="title" name="chaltitle" value="{{title}}" class="hide" autocomplete="off">
+                    <input type="text" class="input-small hide" placeholder="category" name="chalcategory" value="{{category}}" autocomplete="off">
+                    <input type="number" class="input-mini hide" placeholder="points" name="chalpoints" value="{{points}}" autocomplete="off">
+                    <a href="#" class="add-challenge"><i class="glyphicon glyphicon-plus"></i></a>
+                  </span><br>
+                  {{/categories}}
+                  {{#categories}}{{#challenges}}
+                  <span class="category-formgroup">
+                    <input type="hidden" name="chalid" value="{{id}}">
+                    <input type="text" placeholder="title" name="chaltitle" value="{{title}}" autocomplete="off">
+                    <input type="text" class="input-small" placeholder="category" name="chalcategory" value="{{category}}" data-provide="typeahead" data-items="4" data-source='[{{#categories}}"{{name}}",{{/categories}}""]' data-placement="above" autocomplete="off">
+                    <input type="number" class="input-mini" placeholder="points" name="chalpoints" value="{{points}}" autocomplete="off">
+                    <a href="#" class="add-challenge"><i class="glyphicon glyphicon-plus"></i></a>
+                  </span><br>
+                  {{/challenges}}{{/categories}}
+                </div>
+              </form>
+              <br><br><br><br>
+            </div>
+            <div class="modal-footer">
+              <a href="#" class="btn" data-dismiss="modal">Close</a>
+              <a href="#" class="btn btn-primary" onclick="window.modifyctf()">Submit</a>
+            </div>
+            </div>
+        </div>
+      </div>
+    {{/current}}
     <div id="usermodal" class="modal fade">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-						  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-						  <h3>Users online</h3>
-						</div>
-						<div class="modal-body">
-						  <ul class="unstyled" id="userlist">
-						  </ul>
-						</div>
-					</div>
-				</div>
-			</div>
-		  <div id="deletefilemodal" class="modal fade">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-						  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-						  <h3>Delete file</h3>
-						</div>
-						<div class="modal-body">
-						  <div class="alert hide"></div>
-						  <p>Are you sure, that you want to delete the file "<span id="deletefilename"></span>"?</p>
-						</div>
-						<div class="modal-footer">
-						  <button type="button" class="btn" data-dismiss="modal" id="deletefilebtnno">No</button>
-						  <button type="button" class="btn btn-primary" id="deletefilebtnyes" onclick="window.delete_file_confirmed()">Yes</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h3>Users online</h3>
+            </div>
+            <div class="modal-body">
+              <ul class="unstyled" id="userlist">
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="deletefilemodal" class="modal fade">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h3>Delete file</h3>
+            </div>
+            <div class="modal-body">
+              <div class="alert hide"></div>
+              <p>Are you sure, that you want to delete the file "<span id="deletefilename"></span>"?</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn" data-dismiss="modal" id="deletefilebtnno">No</button>
+              <button type="button" class="btn btn-primary" id="deletefilebtnyes" onclick="window.delete_file_confirmed()">Yes</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
