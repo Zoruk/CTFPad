@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>CTFPad :: SwissMadeSecurity</title>
     <link rel="icon" type="image/png" href="img/favicon.png">
     <link rel="stylesheet" href="css/bootstrap.min.css">
@@ -23,77 +23,77 @@
     </script>
   </head>
   <body>
-		<div class="container-fluid">
-			<div class="row" id="row-navbar" >
-				<nav class="navbar navbar-inverse">
-				  <div class="container-fluid">
-				    <div class="navbar-header">
-				      <a class="navbar-brand" href="#">SwissMadeSecurity Pad</a>
-							<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-								<span class="sr-only">Toggle navigation</span>
-								<span class="icon-bar"></span>
-								<span class="icon-bar"></span>
-								<span class="icon-bar"></span>
-							</button>
-						</div>
-						<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-							<ul class="nav navbar-nav navbar-right">
-				      	<li><button type="button" class="btn btn-default navbar-btn" href="#registermodal" data-toggle="modal">Register</button></li>
-							</ul>
-				    </div>
-				  </div>
-				</nav>
-			</div>
-			<div class="row row-eq-height">
-			<div class="col-lg-3">
-				<div class="jumbotron">	
-		      <form action="/login" method="POST">
-		        <div class="form-group">
-		          <label for="login_username">Username:</label>
-		          <input type="text" class="form-control" name="name" id="login_username" />
-		        </div>
-		        <div class="form-group">
-		          <label for="login_password">Password:</label>
-		          <input type="password" class="form-control" name="password" id="login_password" />
-		        </div>
-		        <input type="submit" value="Login" class="btn btn-primary"/>
-		      </form>
-				</div>
-			</div>
-		</div>
+    <div class="container-fluid">
+      <div class="row" id="row-navbar" >
+        <nav class="navbar navbar-inverse">
+          <div class="container-fluid">
+            <div class="navbar-header">
+              <a class="navbar-brand" href="#">SwissMadeSecurity Pad</a>
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <ul class="nav navbar-nav navbar-right">
+                <li><button type="button" class="btn btn-default navbar-btn" href="#registermodal" data-toggle="modal">Register</button></li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </div>
+      <div class="row row-eq-height">
+      <div class="col-lg-3">
+        <div class="jumbotron">  
+          <form action="/login" method="POST">
+            <div class="form-group">
+              <label for="login_username">Username:</label>
+              <input type="text" class="form-control" name="name" id="login_username" />
+            </div>
+            <div class="form-group">
+              <label for="login_password">Password:</label>
+              <input type="password" class="form-control" name="password" id="login_password" />
+            </div>
+            <input type="submit" value="Login" class="btn btn-primary"/>
+          </form>
+        </div>
+      </div>
+    </div>
     <div id="registermodal" class="modal fade">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<form id="registerform" onSubmit="window.register(); return false;">
-						<div class="modal-header">
-						  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-						  <h3 class="modal-title">Registration</h3>
-						</div>
-						<div class="modal-body">
-						  <div class="alert hide"></div>
-				      <div class="form-group">
-				        <label for="register_username">Username:</label>
-				        <input type="text" class="form-control" name="name" id="register_username" />
-				      </div>
-				      <div class="form-group">
-				        <label for="register_password1">Password:</label>
-				        <input type="password" class="form-control" name="password1" id="register_password1" />
-				      </div>
-				      <div class="form-group">
-				        <label for="register_password2">Repeat password:</label>
-				        <input type="password" class="form-control" name="password2" id="register_password2" />
-				      </div>
-				      <div class="form-group">
-				        <label for="register_authkey">Authkey:</label>
-				        <input type="password" class="form-control" name="authkey" id="register_authkey" />
-				      </div>
-				  	</div>
-				  	<div class="modal-footer">
-				    	<button type="submit" class="btn btn-primary" >Register</button>
-				  	</div>
-					</form>
-				</div>
-		  </div>
-		</div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="registerform" onSubmit="window.register(); return false;">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h3 class="modal-title">Registration</h3>
+            </div>
+            <div class="modal-body">
+              <div class="alert hide"></div>
+              <div class="form-group">
+                <label for="register_username">Username:</label>
+                <input type="text" class="form-control" name="name" id="register_username" />
+              </div>
+              <div class="form-group">
+                <label for="register_password1">Password:</label>
+                <input type="password" class="form-control" name="password1" id="register_password1" />
+              </div>
+              <div class="form-group">
+                <label for="register_password2">Repeat password:</label>
+                <input type="password" class="form-control" name="password2" id="register_password2" />
+              </div>
+              <div class="form-group">
+                <label for="register_authkey">Authkey:</label>
+                <input type="password" class="form-control" name="authkey" id="register_authkey" />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary" >Register</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
