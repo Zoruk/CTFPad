@@ -36,6 +36,7 @@ app.use '/js/', express.static 'web/js/'
 app.use '/css/', express.static 'web/css/'
 app.use '/img/', express.static 'web/img/'
 app.use '/doc/', express.static 'web/doc/'
+app.use '/fonts/', express.static 'web/fonts/'
 
 options =
   key: fs.readFileSync config.keyfile

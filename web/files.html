@@ -14,8 +14,8 @@
       <td>{{mimetype}}</td>
       <td><abbr class="timeago" title="{{createdAt}}">{{createdAt}}</span></td>
       <td>
-        <a href="/file/{{idText}}/{{name}}"><i class="icon-download-alt"></i></a>
-        <a class="deletefile" href="#" data-id="{{idText}}" data-name="{{name}}"><i class="icon-trash"></i></a>
+        <a href="/file/{{idText}}/{{name}}"><i class="glyphicon glyphicon-download-alt"></i></a>
+        <a class="deletefile" href="#" data-id="{{idText}}" data-name="{{name}}"><i class="glyphicon glyphicon-trash"></i></a>
       </td>
     </tr>
     {{/files}}
@@ -25,7 +25,7 @@
 $('.timeago').timeago()
 </script>
 <span class="btn btn-success fileinput-button" style="float: left; margin-right: 5px;">
-  <i class="icon-upload icon-white"></i>
+  <i class="glyphicon glyphicon-upload gliphicon-white"></i>
   <span>Upload</span>
   <input id="fileupload" type="file" name="files" multiple>
 </span>
