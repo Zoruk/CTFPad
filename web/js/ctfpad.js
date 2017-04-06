@@ -341,6 +341,8 @@
           color = 'rgba(46, 204, 113, .5)';
           if (pct > 85) {
             color = 'rgba(255, 0, 0, .7)';
+          } else if (pct > 60) {
+            color = 'rgba(255, 110, 0, .7)';
           }
           gradientStyle = color + " " + pct + "%,transparent " + pct + "%, transparent 100%";
           style = ["background: -webkit-linear-gradient(left, " + gradientStyle + ")", "background: -o-linear-gradient(right, " + gradientStyle + ")", "background: -moz-linear-gradient(right, " + gradientStyle + ")", "background: linear-gradient(to right, " + gradientStyle + ")"].join(';');
