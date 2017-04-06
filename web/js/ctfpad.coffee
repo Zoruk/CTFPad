@@ -250,6 +250,15 @@ $ ->
         type: 'chat',
         message: mymessage
       }
+  
+  $('body').delegate '.hide-cat-btn', 'click', ->
+    self = $(this)
+    cat = self.attr('data-category')
+    rows = $('tr.challenge[data-category="' + cat + '"')
+    rows.toggleClass('hidden')
+    self.toggleClass('glyphicon-collapse-down')
+    self.toggleClass('glyphicon-expand')
+
 
   $('#hidefinished').click ->
     unless $(this).hasClass 'active'
