@@ -37,3 +37,12 @@ Using
 -----
 If you are using a self-signed certificate (which is the case for certificates generated with `new_certs.sh`) it may be necessary to access `https://$host:$etherpad_port` directly to add an certificate exception since most browsers do not allow adding exceptions for iframes.
 
+### Tips
+Compilation coffee => js
+- install coffeescript globaly `sudo npm install -g coffeescript`
+- compiling a file `coffee -c <file>.coffee`
+
+Changing priority colors
+- edit the file `web/js/ctfpad.coffee` arround ligne 300
+- compile the file
+
