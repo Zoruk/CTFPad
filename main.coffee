@@ -308,6 +308,8 @@ upload = (user, objtype, objid, req, res) ->
     mimetype = null
     process.execFile '/usr/bin/file', ['-bi', req.files.files.path], (err, stdout) ->
       mimetype = unless err then stdout.toString()
+	  if mimetype.indexOf "\n"
+	    mimetype = mimetype.substr 0, mimetype.indexOf "\n"
 
       file = {
         name: req.files.files.name,
